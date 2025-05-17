@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { ShippingOrderService } from "../../services/shipping/OrderService";
 
-export const useShippingOrderQuery = (params: string = "En espera") => {
+export const useShippingOrderQuery = (params: object = {}) => {
   const { getShippingOrders } = ShippingOrderService();
-
   // Se usa useQuery con un parámetro opcional
   const { data, isLoading, isError } = useQuery({
     queryFn: () => getShippingOrders(params),

@@ -8,7 +8,7 @@ export const ValidationAddressService = () => {
     try {
         const { street, city, state, postalCode, country } = credentials;
        
-      const result = await axios.get(`https://nominatim.openstreetmap.org/search?street=${street}&city=${city}&state=${state}&postalcode=${postalCode}&country=${country}&format=json&addressdetails=1`);
+      const result = await axios.get(`${import.meta.env.VITE_API_VALIDATE_ADDRESS}?street=${street}&city=${city}&state=${state}&postalcode=${postalCode}&country=${country}&format=json&addressdetails=1`);
       return result.data;
     } catch (error) {
       if (isAxiosError(error) && error.response) {

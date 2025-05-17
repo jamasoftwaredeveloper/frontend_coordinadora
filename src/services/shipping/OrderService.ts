@@ -28,11 +28,19 @@ export const ShippingOrderService = () => {
     }
   };
 
-  const getShippingOrders = async (params?: string) => {
+  const getShippingOrders = async (params?: object) => {
     try {
-      const result = await httpClient.get("/shipment/userShipments/"+params);
+      let filters = params;
+
+      if (params?.search === undefined || params?.search ==='') {
+        filters = { ...params, search: "En espera" };
+      }
+
+      const result = await httpClient.get("/shipment/userShipments", {
+        params: filters,
+      });
       return result.data;
-    //  toast.success("Se han cargado las ordenes de envío correctamente");
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
     } catch (error) {
       if (isAxiosError(error) && error.response) {
         toast.error(error.response.data.message);

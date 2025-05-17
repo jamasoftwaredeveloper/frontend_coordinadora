@@ -5,19 +5,36 @@ import { useShippingOrderQuery } from "../hooks/Queries/useShippingOrderQuery";
 import { ShipmentDTO } from "../types/TUser";
 import { EmptyState } from "../components/EmptyState";
 import { useNavigate } from "react-router-dom";
+import Select from "../components/Select";
+import { formatISODate } from "../utils/formateDate";
+import { useQueryContext } from '../context/QueryContext';
+
+
 export default function ListShippingOrderView() {
 
-  // const queryClient = useQueryClient();
-  // const data: ShipmentDTO = queryClient.getQueryData(['getShippingOrders'])!;
-  const [filter, setFilter] = useState<string | undefined>();
+  const { routes, transporters } = useQueryContext();
+
+  interface Filter {
+    search: string;
+    route_id?: number;
+    transporter_id?: number;
+  }
+
+  const [filter, setFilter] = useState<Filter>();
+  const [search, setSearch] = useState<string>("");
   const { data, isLoading, isError, refresh } = useShippingOrderQuery(filter);
   const shipments = (data as { shipments: ShipmentDTO[] })?.shipments;
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const handleDateChange = () => {
+    console.log("Selected range:", { start: startDate, end: endDate });
+  };
   const navigate = useNavigate();
+
   const handleSearch = () => {
-    // aquí podrías pasar el filter como parámetro si tu API acepta query params
-    // por ejemplo: refetch({ queryKey: ['getShippingOrders', filter] })
-    console.log('Buscando envíos con el filtro:', filter);
-    setFilter(filter);
+    setFilter((prev) => ({ ...prev, search }));
     refresh()
   };
 
@@ -35,38 +52,44 @@ export default function ListShippingOrderView() {
    * @param {Object} [options] - Opciones de formateo compatibles con Intl.DateTimeFormat.
    * @returns {string} - Fecha formateada, e.g. "20/05/2025, 03:01:06".
    */
-  function formatISODate(
-    isoString: string,
-    locale = 'es-ES',
-    options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-      timeZone: "UTC",
-    }
-  ) {
-    // 1. Parsear la cadena ISO a Date (UTC)  
-    const date = new Date(isoString); // Date acepta ISO-8601 nativamente :contentReference[oaicite:1]{index=1}
-
-    // 2. Crear un formateador Intl.DateTimeFormat  
-    const formatter = new Intl.DateTimeFormat(locale, options); // Intl.DateTimeFormat para formato localizado :contentReference[oaicite:2]{index=2}
-
-    // 3. Devolver la fecha formateada  
-    return formatter.format(date);
-  }
 
   return (
     <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 m-5">
+        <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
+          setFilter((prev) => ({ ...prev, search: prev?.search || "", route_id: parseInt(value.toString()) }));
+          refresh()
+        }
+        } />
+        <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
+          setFilter((prev) => ({ ...prev, search: prev?.search || "", transporter_id: parseInt(value.toString()) }));
+          refresh()
+        }
+        } />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="p-2 border rounded-md"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="p-2 border rounded-md"
+        />
+        <button
+          onClick={handleDateChange}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+          Seleccionar Rango
+        </button>
+      </div>
       <div className="flex items-center space-x-2">
         <input
           type="text"
           placeholder="Buscar por estado o número de tracking"
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
           onKeyDown={onKeyDown}
           className="px-3 py-2 border rounded flex-1 focus:outline-none focus:ring"
         />
@@ -116,8 +139,8 @@ export default function ListShippingOrderView() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{shipment.transporter}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{shipment.status}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {shipment.estimatedDeliveryDate 
-                      ? formatISODate(shipment.estimatedDeliveryDate.toString()) 
+                    {shipment.estimatedDeliveryDate
+                      ? formatISODate(shipment.estimatedDeliveryDate.toString())
                       : "Fecha no disponible"}
                   </td>
                 </tr>
