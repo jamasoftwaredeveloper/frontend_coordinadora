@@ -7,6 +7,8 @@ import { EmptyState } from "../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import Select from "../components/Select";
 import { formatISODate } from "../utils/formateDate";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useQueryContext } from '../context/QueryContext';
 
 

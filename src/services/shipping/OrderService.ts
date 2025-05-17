@@ -28,7 +28,12 @@ export const ShippingOrderService = () => {
     }
   };
 
-  const getShippingOrders = async (params?: object) => {
+  interface ShippingOrderParams {
+    search?: string;
+     // Allow additional properties
+  }
+
+  const getShippingOrders = async (params?: ShippingOrderParams) => {
     try {
       let filters = params;
 

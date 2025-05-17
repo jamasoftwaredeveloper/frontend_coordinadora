@@ -92,23 +92,7 @@ export default function RegisterView() {
                         />
                         {errors?.email && <ErrorMessage>{errors?.email.message}</ErrorMessage>}
                     </div>
-                    
-                    <div className="space-y-1">
-                        <label htmlFor="name" className="text-sm font-medium text-gray-700 block">
-                            Nombre de Usuario
-                        </label>
-                        <input
-                            id="name"
-                            type="text"
-                            placeholder="usuario (sin espacios)"
-                            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1063AC] focus:border-[#1063AC]"
-                            {...register('name', {
-                                required: "El nombre de usuario es obligatorio"
-                            })}
-                        />
-                        {errors?.name && <ErrorMessage>{errors?.name.message}</ErrorMessage>}
-                    </div>
-                    
+                                        
                     <div className="space-y-1">
                         <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
                             Contraseña
