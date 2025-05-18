@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import ErrorMessage from "../components/ErrorMessage";
-import { ShippingOrderForm } from "../types/TUser";
+import { ShippingOrderForm } from "../types/TShipmentOrder";
 import { useShippingOrderMutation } from "../hooks/Mutations/useShippingOrderMutation";
 import { toast } from "sonner";
 import { ValidationAddressService } from "../services/validationAddress/ValidationAddressService";

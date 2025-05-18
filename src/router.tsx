@@ -20,6 +20,7 @@ export default function Router() {
                 <Route path="/admin" element={<AppLayout />}>
                     <Route index={true} element={<ListShippingOrderView />} />
                     <Route path="shipping/order" element={<ShippingOrderView />} />
+                    <Route path="shipping/assign" element={<ShippingOrderView />} />
                 </Route>
             </Routes>
         </BrowserRouter>

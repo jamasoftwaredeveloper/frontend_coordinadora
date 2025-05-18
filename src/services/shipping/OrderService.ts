@@ -1,5 +1,9 @@
 import { isAxiosError } from "axios";
-import { ShippingOrderAssignForm, ShippingOrderForm } from "../../types/TUser";
+import {
+  Filter,
+  ShippingOrderAssignForm,
+  ShippingOrderForm,
+} from "../../types/TShipmentOrder";
 import httpClient from "../../utils/httpClient";
 import { toast } from "sonner";
 
@@ -28,16 +32,11 @@ export const ShippingOrderService = () => {
     }
   };
 
-  interface ShippingOrderParams {
-    search?: string;
-     // Allow additional properties
-  }
-
-  const getShippingOrders = async (params?: ShippingOrderParams) => {
+  const getShippingOrders = async (params?: Filter) => {
     try {
       let filters = params;
 
-      if (params?.search === undefined || params?.search ==='') {
+      if (params?.search === undefined || params?.search === "") {
         filters = { ...params, search: "En espera" };
       }
 
