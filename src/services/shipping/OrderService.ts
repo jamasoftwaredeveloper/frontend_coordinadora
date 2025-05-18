@@ -1,6 +1,7 @@
 import { isAxiosError } from "axios";
 import {
   Filter,
+  ParamUpdateStatus,
   ShippingOrderAssignForm,
   ShippingOrderForm,
 } from "../../types/TShipmentOrder";
@@ -11,7 +12,9 @@ export const ShippingOrderService = () => {
   const shippingOrderCreate = async (credentials: ShippingOrderForm) => {
     try {
       const result = await httpClient.post("/shipment", credentials);
+
       toast.success("Se ha creado la orden de envío correctamente");
+
       return result.data;
     } catch (error) {
       if (isAxiosError(error) && error.response) {
@@ -34,11 +37,7 @@ export const ShippingOrderService = () => {
 
   const getShippingOrders = async (params?: Filter) => {
     try {
-      let filters = params;
-
-      if (params?.search === undefined || params?.search === "") {
-        filters = { ...params, search: "En espera" };
-      }
+      const filters = params;
 
       const result = await httpClient.get("/shipment/userShipments", {
         params: filters,
@@ -52,5 +51,22 @@ export const ShippingOrderService = () => {
     }
   };
 
-  return { shippingOrderCreate, shippingOrderAssign, getShippingOrders };
+  const updateStatus = async (data?: ParamUpdateStatus) => {
+    try {
+      const result = await httpClient.put("/shipment/updateStatus", data);
+      toast.success("La ordenes de envío, fue actualizada correctamente");
+      return result.data;
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
+  return {
+    shippingOrderCreate,
+    shippingOrderAssign,
+    getShippingOrders,
+    updateStatus,
+  };
 };

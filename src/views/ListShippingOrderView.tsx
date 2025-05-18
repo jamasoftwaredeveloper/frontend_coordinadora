@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Table from "../components/Table";
 import { useShippingOrderQuery } from "../hooks/Queries/useShippingOrderQuery";
-import { Filter, ShipmentDTO } from "../types/TShipmentOrder";
+import { Filter, ShipmentDTO, ShipmentStatus } from "../types/TShipmentOrder";
 import { EmptyState } from "../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import Select from "../components/Select";
@@ -14,14 +14,18 @@ import { shipmentStatusOptions } from '../utils/data';
 // @ts-ignore
 import { useQueryContext } from '../context/QueryContext';
 import Modal from "../components/Modal";
+import { useShippingOrderUpdateMutation } from "../hooks/Mutations/useShippingOrderUpdateMutation";
+import { useShippingOrderUpdateStatusMutation } from "../hooks/Mutations/useShippingOrderUpdateStatusMutation";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 
 export default function ListShippingOrderView() {
 
   const { routes, transporters } = useQueryContext();
-
-  const [filter, setFilter] = useState<Filter>();
-  const [search, setSearch] = useState<string>("");
+  const { mutate: shippingOrderAssign } = useShippingOrderUpdateMutation();
+  const { mutate: updateStatus } = useShippingOrderUpdateStatusMutation();
+  const [filter, setFilter] = useState<Filter>({});
+  const [trackingNumber, setSearch] = useState<string>("");
   const [titleModal, setTitleModal] = useState<string>();
   const { data, isLoading, isError, refresh } = useShippingOrderQuery(filter);
   const shipments = (data as { shipments: ShipmentDTO[] })?.shipments;
@@ -30,11 +34,17 @@ export default function ListShippingOrderView() {
   const [endDate, setEndDate] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<ShipmentDTO | null>(null);
+  const [routeId, setRouteId] = useState<string | number>();
+  const [transporterId, setTransporterId] = useState<string | number>();
+  const [errors, setErrors] = useState({ route: '', transporter: '' });
+  const [type, setType] = useState('');
+  const navigate = useNavigate();
 
   const handleOpenModal = (shipment: ShipmentDTO, type: string) => {
+    setSelectedShipment(shipment);
+    setType(type)
     if (type == "show") {
       setTitleModal("Detalles del Envío")
-      setSelectedShipment(shipment);
     } else {
       setTitleModal("Asignar paquete")
     }
@@ -42,19 +52,18 @@ export default function ListShippingOrderView() {
   };
 
   const changeStatusShipping = (shipment: Pick<ShipmentDTO, "id">, status: string) => {
-    console.log("shipment", shipment.id);
-    console.log("status", status);
+    updateStatus({ id: shipment.id, status: status as ShipmentStatus })
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedShipment(null);
+    setErrors({ route: '', transporter: '' });
   };
   const handleDateChange = () => {
-    setFilter((prev) => ({ ...prev, search, startDate: formatDateForSQL(startDate), endDate: formatDateForSQL(endDate) }));
+    setFilter((prev) => ({ ...prev, startDate: formatDateForSQL(startDate), endDate: formatDateForSQL(endDate) }));
     refresh()
   };
-  const navigate = useNavigate();
   const formatDateForSQL = (date: string): string => {
     if (date) {
       return date.replace("T", " ") + ":00";
@@ -64,16 +73,45 @@ export default function ListShippingOrderView() {
   };
 
   const handleSearch = () => {
-    setFilter((prev) => ({ ...prev, search, startDate: formatDateForSQL(startDate), endDate: formatDateForSQL(endDate) }));
+    setFilter((prev) => ({ ...prev, search: trackingNumber }));
     refresh()
   };
   const handleClear = () => {
-    setFilter({ search: "" });
+    setFilter({});
     setSearch("");
     setStartDate("");
     setEndDate("");
     refresh()
   };
+  const submitShippingOrderAssign = () => {
+    // Validación de campos
+    const formErrors = { route: '', transporter: '' };
+    if (!routeId) formErrors.route = 'La ruta es obligatoria.';
+    if (!transporterId) formErrors.transporter = 'El transporte es obligatorio.';
+
+    // Si hay errores, actualiza el estado y no envía el formulario
+    if (formErrors.route || formErrors.transporter) {
+      setErrors(formErrors);
+      return;
+    }
+
+    console.log("selectedShipment", selectedShipment)
+    if (selectedShipment) {
+      console.log("entro a update")
+
+      shippingOrderAssign({
+        route_id: Number(routeId), transporter_id: Number(transporterId), id: selectedShipment.id || 0
+      });
+    }
+    setErrors({ route: '', transporter: '' });  // Limpia los errores
+    setTransporterId("")
+    setRouteId("")
+    refresh()
+    setIsModalOpen(false);
+  };
+
+
+
 
   // 3) Capturar Enter en el input
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -95,12 +133,17 @@ export default function ListShippingOrderView() {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 m-5">
         <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, search: prev?.search || "", route_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, route_id: parseInt(value.toString()) }));
           refresh()
         }
         } />
         <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, search: prev?.search || "", transporter_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, transporter_id: parseInt(value.toString()) }));
+          refresh()
+        }
+        } />
+        <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
+          setFilter((prev) => ({ ...prev, status: value }));
           refresh()
         }
         } />
@@ -117,12 +160,12 @@ export default function ListShippingOrderView() {
           className="p-2 border rounded-md"
         />
         <div className="flex gap-2 items-center">
-          <button className="flex items-center justify-center gap-1 px-2 py-1 bg-blue-500 text-white rounded" onClick={handleDateChange}>
+          <button className="flex items-center justify-center gap-1 px-2 py-1 bg-blue-500 text-white rounded" title="Filtrar por fecha" onClick={handleDateChange}>
             <Calendar size={20} className="m-auto" />
             Fecha
           </button>
 
-          <button className="flex items-center justify-center gap-1 px-2 py-1 bg-red-500 text-white rounded" onClick={handleClear}>
+          <button className="flex items-center justify-center gap-1 px-2 py-1 bg-red-500 text-white rounded" title="Limpiar filtro" onClick={handleClear}>
             <X size={20} className="m-auto" />
             Limpiar
           </button>
@@ -131,8 +174,8 @@ export default function ListShippingOrderView() {
       <div className="flex items-center space-x-2">
         <input
           type="text"
-          placeholder="Buscar por estado o número de tracking"
-          value={search}
+          placeholder="Buscar por número de tracking"
+          value={trackingNumber}
           onChange={e => setSearch(e.target.value)}
           onKeyDown={onKeyDown}
           className="px-3 py-2 border rounded flex-1 focus:outline-none focus:ring"
@@ -141,13 +184,18 @@ export default function ListShippingOrderView() {
           onClick={handleSearch}
           className="px-4 py-2  text-white rounded "
           style={{ backgroundColor: '#1063AC' }} // Cambia el color aquí
+          title="Buscar"
         >
           <Search size={20} className="m-auto" />
         </button>
       </div>
 
       {/* Estados de la petición */}
-      {isLoading && <p>Cargando envíos…</p>}
+      {isLoading && (
+        <LoadingSpinner
+          message="Cargando envios..."
+        />
+      )}
       {isError && <p className="text-red-600">Error al cargar envíos.</p>}
 
       {/* 2) Empty State cuando no hay envíos */}
@@ -172,9 +220,9 @@ export default function ListShippingOrderView() {
               <th className="px-6 py-3">Transporte</th>
               <th className="px-6 py-3">Estado</th>
               <th className="px-6 py-3">Fecha estipulada de llegada</th>
+              <th className="px-6 py-3">Cambio de estado</th>
               <th className="px-6 py-3">Ver</th>
               <th className="px-6 py-3">Asignar</th>
-              <th className="px-6 py-3">Cambio de estado</th>
             </Table.Head>
 
             <Table.Body striped>
@@ -191,22 +239,24 @@ export default function ListShippingOrderView() {
                       : "Fecha no disponible"}
                   </td>
                   <td>
-                    <button onClick={() => handleOpenModal(shipment, 'show')}
-                      className="px-4 py-2  text-white rounded"
-                      style={{ backgroundColor: '#1063AC' }}
-                    ><EyeIcon size={20} className="m-auto" /></button>
-                  </td>
-                  <td>
-                    <button onClick={() => handleOpenModal(shipment, 'assig')}
-                      className="px-4 py-2 m-2 text-white rounded"
-                      style={{ backgroundColor: '#F05A28' }}
-                    ><CarIcon size={20} className="m-auto" /></button>
-                  </td>
-                  <td>
-                    <Select options={shipmentStatusOptions || []} placeholder="Selecciona una ruta" onChange={(value) => {
+                    <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
                       changeStatusShipping(shipment, value.toString());
                     }
                     } />
+                  </td>
+                  <td className="text-center">
+                    <button onClick={() => handleOpenModal(shipment, 'show')}
+                      className="px-4 py-2 ml-2 text-white rounded"
+                      style={{ backgroundColor: '#1063AC' }}
+                      title="Ver envio"
+                    ><EyeIcon size={20} className="m-auto" /></button>
+                  </td>
+                  <td className="text-center">
+                    <button onClick={() => handleOpenModal(shipment, 'assig')}
+                      className="px-4 py-2 ml-2 text-white rounded"
+                      style={{ backgroundColor: '#F05A28' }}
+                      title="Asignar en envio"
+                    ><CarIcon size={20} className="m-auto" /></button>
                   </td>
                 </tr>
               ))}
@@ -214,46 +264,55 @@ export default function ListShippingOrderView() {
             </Table.Body>
           </Table>
           <Modal title={titleModal || "Default Title"} isOpen={isModalOpen} onClose={handleCloseModal}>
-            {selectedShipment ? (
-              <div>
-                <h1><strong>Información del paquete</strong></h1>
-                <p>Altura: {selectedShipment.packageInfo.height}</p>
-                <p>Ancho: {selectedShipment.packageInfo.width}</p>
-                <p>Longitud: {selectedShipment.packageInfo.length}</p>
-                <p>Tipo: {selectedShipment.packageInfo.productType}</p>
-                <p>Peso: {selectedShipment.packageInfo.weight}</p>
-                <h1><strong>Dirección de recogida</strong></h1>
-                <p>Quien recibe: {selectedShipment.exitAddress.recipientName}</p>
-                <p>Contacto: {selectedShipment.exitAddress.recipientPhone}</p>
-                <p>País: {selectedShipment.exitAddress.country}</p>
-                <p>Estado: {selectedShipment.exitAddress.state}</p>
-                <p>Ciudad: {selectedShipment.exitAddress.city}</p>
-                <p>Dirección: {selectedShipment.exitAddress.street}</p>
-                <h1><strong>Dirección de llegada</strong></h1>
-                <p>Quien recibe: {selectedShipment.destinationAddress.recipientName}</p>
-                <p>Contacto: {selectedShipment.destinationAddress.recipientPhone}</p>
-                <p>País: {selectedShipment.destinationAddress.country}</p>
-                <p>Estado: {selectedShipment.destinationAddress.state}</p>
-                <p>Ciudad: {selectedShipment.destinationAddress.city}</p>
-                <p>Dirección: {selectedShipment.destinationAddress.street}</p>
-              </div>
-            ) : (
-              <form className="p-6 rounded-lg shadow-md space-y-6">
-                <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
-                  console.log("ruta", value);
-                }
-                } />
-                <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
-                  console.log("transporte", value);
-                }
-                } />
-                <div className="text-center mt-4">
-                  <input type="submit" className="bg-[#1063AC] text-white p-3 rounded-lg font-bold hover:bg-[#0E568E] cursor-pointer" value="Asignar Orden" />
+            {
+              selectedShipment &&
+                type === "show" ? (
+                <div>
+                  <h1><strong>Información del paquete</strong></h1>
+                  <p>Altura: {selectedShipment.packageInfo.height}</p>
+                  <p>Ancho: {selectedShipment.packageInfo.width}</p>
+                  <p>Longitud: {selectedShipment.packageInfo.length}</p>
+                  <p>Tipo: {selectedShipment.packageInfo.productType}</p>
+                  <p>Peso: {selectedShipment.packageInfo.weight}</p>
+                  <h1><strong>Dirección de recogida</strong></h1>
+                  <p>Quien recibe: {selectedShipment.exitAddress.recipientName}</p>
+                  <p>Contacto: {selectedShipment.exitAddress.recipientPhone}</p>
+                  <p>País: {selectedShipment.exitAddress.country}</p>
+                  <p>Estado: {selectedShipment.exitAddress.state}</p>
+                  <p>Ciudad: {selectedShipment.exitAddress.city}</p>
+                  <p>Dirección: {selectedShipment.exitAddress.street}</p>
+                  <h1><strong>Dirección de llegada</strong></h1>
+                  <p>Quien recibe: {selectedShipment.destinationAddress.recipientName}</p>
+                  <p>Contacto: {selectedShipment.destinationAddress.recipientPhone}</p>
+                  <p>País: {selectedShipment.destinationAddress.country}</p>
+                  <p>Estado: {selectedShipment.destinationAddress.state}</p>
+                  <p>Ciudad: {selectedShipment.destinationAddress.city}</p>
+                  <p>Dirección: {selectedShipment.destinationAddress.street}</p>
+                  <p
+                    className="text-red-500"
+                  >
+                    <strong>Costo: </strong> {selectedShipment.cost}</p>
                 </div>
-              </form>
-            )}
-
-
+              ) : (
+                <form className="p-6 rounded-lg shadow-md space-y-6" onSubmit={(event) => {
+                  event.preventDefault();  // Evita el recargado de la página
+                  submitShippingOrderAssign();  // Ejecuta la función
+                }}>
+                  <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
+                    setRouteId(value)
+                  }
+                  } />
+                  {errors.route && <p className="text-red-600">{errors.route}</p>}
+                  <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
+                    setTransporterId(value)
+                  }
+                  } />
+                  {errors.transporter && <p className="text-red-600">{errors.transporter}</p>}
+                  <div className="text-center mt-4">
+                    <input type="submit" className="bg-[#1063AC] text-white p-3 rounded-lg font-bold hover:bg-[#0E568E] cursor-pointer" value="Asignar Orden" />
+                  </div>
+                </form>
+              )}
           </Modal>
         </div>
       }

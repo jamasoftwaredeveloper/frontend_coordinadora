@@ -4,6 +4,7 @@ import { ShippingOrderForm } from "../types/TShipmentOrder";
 import { useShippingOrderMutation } from "../hooks/Mutations/useShippingOrderMutation";
 import { toast } from "sonner";
 import { ValidationAddressService } from "../services/validationAddress/ValidationAddressService";
+import { useNavigate } from "react-router-dom";
 
 // Componente para la información del paquete
 function PackageInfoForm({ register, errors }: any) {
@@ -72,7 +73,7 @@ function AddressForm({ register, errors, prefix, title }: any) {
 
 export default function ShippingOrderView() {
     const { mutate: shippingOrderCreate } = useShippingOrderMutation();
-
+    const navigate = useNavigate();
     const defaultValues = {
         route_id: 0,
         transporter_id: 0,
@@ -89,6 +90,7 @@ export default function ShippingOrderView() {
         if (result.length > 0) {
             toast.info("La dirección valida, continuará con el guardado.");
             shippingOrderCreate(data);
+            navigate("/admin")
         }else {
             toast.error("La dirección ingresada no es valida.");
         }

@@ -4,7 +4,7 @@ import { ShippingOrderService } from "../../services/shipping/OrderService";
 
 const { shippingOrderAssign } = ShippingOrderService(); // Extraemos updateUser
 
-export const useShippingOrderMutationUpdate = () => {
+export const useShippingOrderUpdateMutation = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -15,7 +15,7 @@ export const useShippingOrderMutationUpdate = () => {
     },
     onSuccess: () => {
       // 🔄 Refresca la información del usuario en caché
-      queryClient.invalidateQueries({ queryKey: ["getUser"] });
+      queryClient.invalidateQueries({ queryKey: ["getShippingOrders"] });
     },
   });
 

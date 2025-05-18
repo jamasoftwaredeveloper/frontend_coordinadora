@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
-import { ValidationAddressForm } from "../../types/TUser";
 import axios from "axios";
 import { toast } from "sonner";
+import { ValidationAddressForm } from "../../types/TShipmentOrder";
 
 export const ValidationAddressService = () => {
   const validationAddress = async (credentials: ValidationAddressForm) => {
