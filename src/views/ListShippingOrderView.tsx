@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Table from "../components/Table";
 import { useShippingOrderQuery } from "../hooks/Queries/useShippingOrderQuery";
 import { Filter, ShipmentDTO, ShipmentStatus } from "../types/TShipmentOrder";
@@ -17,7 +17,7 @@ import Modal from "../components/Modal";
 import { useShippingOrderUpdateMutation } from "../hooks/Mutations/useShippingOrderUpdateMutation";
 import { useShippingOrderUpdateStatusMutation } from "../hooks/Mutations/useShippingOrderUpdateStatusMutation";
 import LoadingSpinner from "../components/LoadingSpinner";
-
+import { io } from 'socket.io-client';
 
 export default function ListShippingOrderView() {
 
@@ -39,6 +39,19 @@ export default function ListShippingOrderView() {
   const [errors, setErrors] = useState({ route: '', transporter: '' });
   const [type, setType] = useState('');
   const navigate = useNavigate();
+  const socket = io(import.meta.env.VITE_SERVE_URL);
+
+  useEffect(() => {
+    // Escuchar actualizaciones de mensajes
+    socket.on('update', (newMessage) => {
+      console.log("socket", newMessage);
+
+    });
+
+    return () => {
+      socket.off('update');
+    };
+  }, []);
 
   const handleOpenModal = (shipment: ShipmentDTO, type: string) => {
     setSelectedShipment(shipment);
