@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import Select from "../components/Select";
 import { formatISODate } from "../utils/formateDate";
 import { Calendar, CarIcon, EyeIcon, Search, X } from "lucide-react";
+import { shipmentStatusOptions } from '../utils/data';
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { useQueryContext } from '../context/QueryContext';
@@ -37,6 +39,11 @@ export default function ListShippingOrderView() {
       setTitleModal("Asignar paquete")
     }
     setIsModalOpen(true);
+  };
+
+  const changeStatusShipping = (shipment: Pick<ShipmentDTO, "id">, status: string) => {
+    console.log("shipment", shipment.id);
+    console.log("status", status);
   };
 
   const handleCloseModal = () => {
@@ -165,6 +172,9 @@ export default function ListShippingOrderView() {
               <th className="px-6 py-3">Transporte</th>
               <th className="px-6 py-3">Estado</th>
               <th className="px-6 py-3">Fecha estipulada de llegada</th>
+              <th className="px-6 py-3">Ver</th>
+              <th className="px-6 py-3">Asignar</th>
+              <th className="px-6 py-3">Cambio de estado</th>
             </Table.Head>
 
             <Table.Body striped>
@@ -185,17 +195,25 @@ export default function ListShippingOrderView() {
                       className="px-4 py-2  text-white rounded"
                       style={{ backgroundColor: '#1063AC' }}
                     ><EyeIcon size={20} className="m-auto" /></button>
+                  </td>
+                  <td>
                     <button onClick={() => handleOpenModal(shipment, 'assig')}
                       className="px-4 py-2 m-2 text-white rounded"
                       style={{ backgroundColor: '#F05A28' }}
                     ><CarIcon size={20} className="m-auto" /></button>
+                  </td>
+                  <td>
+                    <Select options={shipmentStatusOptions || []} placeholder="Selecciona una ruta" onChange={(value) => {
+                      changeStatusShipping(shipment, value.toString());
+                    }
+                    } />
                   </td>
                 </tr>
               ))}
               {/* Más filas... */}
             </Table.Body>
           </Table>
-          <Modal title={titleModal} isOpen={isModalOpen} onClose={handleCloseModal}>
+          <Modal title={titleModal || "Default Title"} isOpen={isModalOpen} onClose={handleCloseModal}>
             {selectedShipment ? (
               <div>
                 <h1><strong>Información del paquete</strong></h1>
