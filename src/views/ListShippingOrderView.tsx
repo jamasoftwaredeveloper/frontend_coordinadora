@@ -18,9 +18,10 @@ import { useShippingOrderUpdateMutation } from "../hooks/Mutations/useShippingOr
 import { useShippingOrderUpdateStatusMutation } from "../hooks/Mutations/useShippingOrderUpdateStatusMutation";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { io } from 'socket.io-client';
+import { useUserAuthQuery } from "../hooks/Queries/useAuthQuery";
 
 export default function ListShippingOrderView() {
-
+  const { data: user } = useUserAuthQuery();
   const { routes, transporters } = useQueryContext();
   const { mutate: shippingOrderAssign } = useShippingOrderUpdateMutation();
   const { mutate: updateStatus } = useShippingOrderUpdateStatusMutation();
@@ -233,9 +234,15 @@ export default function ListShippingOrderView() {
               <th className="px-6 py-3">Transporte</th>
               <th className="px-6 py-3">Estado</th>
               <th className="px-6 py-3">Fecha estipulada de llegada</th>
-              <th className="px-6 py-3">Cambio de estado</th>
               <th className="px-6 py-3">Ver</th>
-              <th className="px-6 py-3">Asignar</th>
+              {user?.role === "admin" && (
+                <>
+                  <th className="px-6 py-3">Cambio de estado</th>
+                  <th className="px-6 py-3">Asignar</th>
+                </>
+              )
+              }
+
             </Table.Head>
 
             <Table.Body striped>
@@ -251,12 +258,6 @@ export default function ListShippingOrderView() {
                       ? formatISODate(shipment.estimatedDeliveryDate.toString())
                       : "Fecha no disponible"}
                   </td>
-                  <td>
-                    <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
-                      changeStatusShipping(shipment, value.toString());
-                    }
-                    } />
-                  </td>
                   <td className="text-center">
                     <button onClick={() => handleOpenModal(shipment, 'show')}
                       className="px-4 py-2 ml-2 text-white rounded"
@@ -264,13 +265,22 @@ export default function ListShippingOrderView() {
                       title="Ver envio"
                     ><EyeIcon size={20} className="m-auto" /></button>
                   </td>
-                  <td className="text-center">
-                    <button onClick={() => handleOpenModal(shipment, 'assig')}
-                      className="px-4 py-2 ml-2 text-white rounded"
-                      style={{ backgroundColor: '#F05A28' }}
-                      title="Asignar en envio"
-                    ><CarIcon size={20} className="m-auto" /></button>
-                  </td>
+                  {user?.role === "admin" && (
+                    <>
+                      <td>
+                        <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
+                          changeStatusShipping(shipment, value.toString());
+                        }
+                        } />
+                      </td>
+                      <td className="text-center">
+                        <button onClick={() => handleOpenModal(shipment, 'assig')}
+                          className="px-4 py-2 ml-2 text-white rounded"
+                          style={{ backgroundColor: '#F05A28' }}
+                          title="Asignar en envio"
+                        ><CarIcon size={20} className="m-auto" /></button>
+                      </td>
+                    </>)}
                 </tr>
               ))}
               {/* Más filas... */}

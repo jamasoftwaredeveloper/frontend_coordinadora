@@ -1,10 +1,13 @@
 import { BookmarkSquareIcon, UserIcon } from '@heroicons/react/20/solid'
+import { CarIcon } from 'lucide-react'
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useUserAuthQuery } from '../hooks/Queries/useAuthQuery'
 
-const tabs = [
+const allTabs = [
     { name: 'Ordenes de envio', href: '/admin', icon: BookmarkSquareIcon },
     { name: 'Crear envio', href: '/admin/shipping/order', icon: UserIcon },
+    { name: 'Crear transporte', href: '/admin/transporter', icon: CarIcon },
 ]
 
 function classNames(...classes: string[]) {
@@ -17,7 +20,13 @@ export default function NavigationTabs() {
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         navigation(e.target.value);
     }
-
+      const { data: user } = useUserAuthQuery();
+    const tabs = allTabs.filter(tab => {
+        if (tab.name === 'Crear transporte' && user?.role !== 'admin') {
+          return false; // esconder esta pestaña si no es admin
+        }
+        return true;
+      });
     return (
         <div className='mb-5'>
             <div className="sm:hidden">

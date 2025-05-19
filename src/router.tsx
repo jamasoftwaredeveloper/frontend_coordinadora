@@ -5,6 +5,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import AppLayout from "./layouts/AppLayout";
 import ListShippingOrderView from "./views/ListShippingOrderView";
 import ShippingOrderView from "./views/ShippingOrderView";
+import AdminGuard from "./guard/AdminGuard";
+import CreateTransporterView from "./views/CreateTransporterView";
 
 
 export default function Router() {
@@ -21,6 +23,10 @@ export default function Router() {
                     <Route index={true} element={<ListShippingOrderView />} />
                     <Route path="shipping/order" element={<ShippingOrderView />} />
                     <Route path="shipping/assign" element={<ShippingOrderView />} />
+
+                    <Route element={<AdminGuard />}>
+                        <Route path="transporter" element={<CreateTransporterView />} />
+                    </Route>
                 </Route>
             </Routes>
         </BrowserRouter>

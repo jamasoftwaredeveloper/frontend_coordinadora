@@ -25,7 +25,7 @@ export default function Header({ data }: HeaderProps) {
                     <div className="flex justify-between items-center">
                         {/* Logo y nombre de la app */}
                         <div className="flex items-center">
-                            <Link to="/" className="text-xl font-bold text-gray-800">
+                            <Link to="/admin" className="text-xl font-bold text-gray-800">
                                 <span className="text-blue-600">Front-End</span>Coordinadora
                             </Link>
                         </div>
