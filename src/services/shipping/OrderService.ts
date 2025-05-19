@@ -4,6 +4,7 @@ import {
   ParamUpdateStatus,
   ShippingOrderAssignForm,
   ShippingOrderForm,
+  TransporterForm,
 } from "../../types/TShipmentOrder";
 import httpClient from "../../utils/httpClient";
 import { toast } from "sonner";
@@ -63,10 +64,90 @@ export const ShippingOrderService = () => {
     }
   };
 
+  const getMonthlyPerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getMonthlyPerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+  const getRoutePerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getRoutePerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
+  const getTransporterPerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getTransporterPerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+  const storeTransporter = async (data?: TransporterForm) => {
+    try {
+      const result = await httpClient.post("/shipment/storeTransporter", data);
+      toast.success("El transpose, fue creado correctamente");
+      return result.data;
+    } catch (error) {
+
+      if (isAxiosError(error) && error.response) {
+        if(error.response.data.message){
+          toast.error(error.response.data.message);
+        }
+        if(error.response.data.errors){
+          const {errors} =error.response.data;
+          errors.forEach((element: { msg: string }) => {
+            toast.error(element.msg);
+          });
+        }
+      }
+    }
+  };
+
   return {
     shippingOrderCreate,
     shippingOrderAssign,
     getShippingOrders,
     updateStatus,
+    getMonthlyPerformanceMetrics,
+    getRoutePerformanceMetrics,
+    getTransporterPerformanceMetrics,
+    storeTransporter,
   };
 };

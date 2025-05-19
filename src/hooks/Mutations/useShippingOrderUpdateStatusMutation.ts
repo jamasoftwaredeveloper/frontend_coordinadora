@@ -10,8 +10,8 @@ export const useShippingOrderUpdateStatusMutation = () => {
   const mutation = useMutation({
     mutationFn: updateStatus, // La función que realiza la mutación
     onError: (error) => {
-      console.error("Error al actualizar perfil:", error);
-      toast.error("Error al actualizar perfil. Inténtalo de nuevo.");
+      console.error("Error al actualizar estado:", error);
+      toast.error("Error al actualizar estado. Inténtalo de nuevo.");
     },
     onSuccess: () => {
       // 🔄 Refresca la información del usuario en caché

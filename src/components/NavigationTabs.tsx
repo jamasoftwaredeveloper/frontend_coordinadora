@@ -1,11 +1,12 @@
 import { BookmarkSquareIcon, UserIcon } from '@heroicons/react/20/solid'
-import { CarIcon } from 'lucide-react'
+import { BarChart, CarIcon } from 'lucide-react'
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useUserAuthQuery } from '../hooks/Queries/useAuthQuery'
 
 const allTabs = [
-    { name: 'Ordenes de envio', href: '/admin', icon: BookmarkSquareIcon },
+    { name: 'Graficas', href: '/admin', icon: BarChart },
+    { name: 'Ordenes de envio', href: '/admin/list', icon: BookmarkSquareIcon },
     { name: 'Crear envio', href: '/admin/shipping/order', icon: UserIcon },
     { name: 'Crear transporte', href: '/admin/transporter', icon: CarIcon },
 ]

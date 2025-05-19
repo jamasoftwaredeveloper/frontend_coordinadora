@@ -2,16 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ShippingOrderService } from "../../services/shipping/OrderService";
 
-const { shippingOrderAssign } = ShippingOrderService(); // Extraemos updateUser
+const { storeTransporter } = ShippingOrderService(); // Extraemos updateUser
 
-export const useShippingOrderUpdateMutation = () => {
+export const useStoreTransporterMutation = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: shippingOrderAssign, // La función que realiza la mutación
+    mutationFn: storeTransporter, // La función que realiza la mutación
     onError: (error) => {
-      console.error("Error al asignar envio:", error);
-      toast.error("Error al asignar envio. Inténtalo de nuevo.");
+      console.error("Error al crear transporte:", error);
+      toast.error("Error al crear transporte. Inténtalo de nuevo.");
     },
     onSuccess: () => {
       // 🔄 Refresca la información del usuario en caché

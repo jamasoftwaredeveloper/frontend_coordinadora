@@ -6,7 +6,7 @@ import { Filter, ShipmentDTO, ShipmentStatus } from "../types/TShipmentOrder";
 import { EmptyState } from "../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import Select from "../components/Select";
-import { formatISODate } from "../utils/formateDate";
+import { formatDateForSQL, formatISODate } from "../utils/formateDate";
 import { Calendar, CarIcon, EyeIcon, Search, X } from "lucide-react";
 import { shipmentStatusOptions } from '../utils/data';
 
@@ -22,13 +22,16 @@ import { useUserAuthQuery } from "../hooks/Queries/useAuthQuery";
 
 export default function ListShippingOrderView() {
   const { data: user } = useUserAuthQuery();
-  const { routes, transporters } = useQueryContext();
+  const { routes, transporters, refetchAll } = useQueryContext();
   const { mutate: shippingOrderAssign } = useShippingOrderUpdateMutation();
   const { mutate: updateStatus } = useShippingOrderUpdateStatusMutation();
-  const [filter, setFilter] = useState<Filter>({});
+  const [page, setPage] = useState<number>(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [pageSize] = useState<number>(20);
+  const [filter, setFilter] = useState<Filter>();
   const [trackingNumber, setSearch] = useState<string>("");
   const [titleModal, setTitleModal] = useState<string>();
-  const { data, isLoading, isError, refresh } = useShippingOrderQuery(filter);
+  const { data, isLoading, isError, refresh } = useShippingOrderQuery({ ...filter, page, pageSize });
   const shipments = (data as { shipments: ShipmentDTO[] })?.shipments;
 
   const [startDate, setStartDate] = useState('');
@@ -42,6 +45,9 @@ export default function ListShippingOrderView() {
   const navigate = useNavigate();
   const socket = io(import.meta.env.VITE_SERVE_URL);
 
+  const nextPage = () => setPage((prev) => prev + 1);
+  const prevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : 1));
+
   useEffect(() => {
     // Escuchar actualizaciones de mensajes
     socket.on('update', (newMessage) => {
@@ -51,6 +57,7 @@ export default function ListShippingOrderView() {
 
     return () => {
       socket.off('update');
+      refetchAll()
     };
   }, []);
 
@@ -77,13 +84,6 @@ export default function ListShippingOrderView() {
   const handleDateChange = () => {
     setFilter((prev) => ({ ...prev, startDate: formatDateForSQL(startDate), endDate: formatDateForSQL(endDate) }));
     refresh()
-  };
-  const formatDateForSQL = (date: string): string => {
-    if (date) {
-      return date.replace("T", " ") + ":00";
-    } else {
-      return "";
-    }
   };
 
   const handleSearch = () => {
@@ -144,12 +144,12 @@ export default function ListShippingOrderView() {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 m-5">
         <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, route_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, route_id: parseInt((value ?? '').toString()) }));
           refresh()
         }
         } />
         <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, transporter_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, transporter_id: parseInt((value ?? '').toString()) }));
           refresh()
         }
         } />
@@ -266,9 +266,9 @@ export default function ListShippingOrderView() {
                     <>
                       <td>
                         <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
-                          changeStatusShipping(shipment, value.toString());
+                          changeStatusShipping(shipment, value ? value.toString() : '');
                         }
-                        } />
+                        } key={shipment.id} value={shipment.status} />
                       </td>
                       <td className="text-center">
                         <button onClick={() => handleOpenModal(shipment, 'assig')}
@@ -283,6 +283,25 @@ export default function ListShippingOrderView() {
               {/* Más filas... */}
             </Table.Body>
           </Table>
+          <div className="flex justify-between items-center p-4 bg-white shadow-md rounded-lg">
+            <button
+              onClick={prevPage}
+              disabled={page === 1}
+              className={`p-2 text-white font-semibold rounded-md transition-colors ${page === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-[rgb(16,99,172)] hover:bg-blue-900"
+                }`}
+            >
+              Anterior
+            </button>
+            <span className="text-gray-700 font-medium">Página {page}</span>
+            <button
+              onClick={nextPage}
+              className="p-2 text-white font-semibold rounded-md transition-colors bg-[rgb(16,99,172)] hover:bg-blue-700"
+            >
+              Siguiente
+            </button>
+          </div>
+
+
           <Modal title={titleModal || "Default Title"} isOpen={isModalOpen} onClose={handleCloseModal}>
             {
               selectedShipment &&
