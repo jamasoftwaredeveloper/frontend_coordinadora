@@ -63,10 +63,69 @@ export const ShippingOrderService = () => {
     }
   };
 
+  const getMonthlyPerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getMonthlyPerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+  const getRoutePerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getRoutePerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
+  const getTransporterPerformanceMetrics = async (params?: Filter) => {
+    try {
+      const filters = params;
+
+      const result = await httpClient.get(
+        "/shipment/getTransporterPerformanceMetrics",
+        {
+          params: filters,
+        }
+      );
+      return result.data;
+      //  toast.success("Se han cargado las ordenes de envío correctamente");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
   return {
     shippingOrderCreate,
     shippingOrderAssign,
     getShippingOrders,
     updateStatus,
+    getMonthlyPerformanceMetrics,
+    getRoutePerformanceMetrics,
+    getTransporterPerformanceMetrics,
   };
 };

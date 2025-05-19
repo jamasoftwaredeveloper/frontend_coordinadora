@@ -11,7 +11,7 @@ export type ShippingOrderAssignForm = Pick<
   ShippingOrderForm,
   "route_id" | "transporter_id"
 > & {
-  id:number;
+  id: number;
 };
 
 export interface PackageInfo {
@@ -61,7 +61,7 @@ export interface ShipmentDTO {
   estimatedDeliveryDate?: Date;
   createdAt?: Date;
   updatedAt?: Date;
-  cost?: number; 
+  cost?: number;
 }
 
 export enum ShipmentStatus {
@@ -78,6 +78,35 @@ export interface Filter {
   transporter_id?: number;
   startDate?: string;
   endDate?: string;
+  page?: number; // Added page property
+  pageSize?: number; // Added pageSize proper
 }
 
 export type ParamUpdateStatus = Pick<ShipmentDTO, "id" | "status"> & {};
+
+export interface TransporterMetrics {
+  transporter_name: string;
+  total_shipments: number;
+  completed_shipments: number;
+  pending_shipments: number;
+  cancelled_shipments: number;
+}
+
+export interface MonthlyMetrics {
+  transporter_id: number;
+  transporter_name: string;
+  year: number;
+  month: number;
+  total_shipments: number;
+  completed_shipments: number;
+  avg_delivery_time_days: string;
+}
+
+export interface RouteMetrics {
+  route_id: number;
+  route_name: string;
+  transporter_id: number;
+  transporter_name: string;
+  total_shipments: number;
+  avg_delivery_time_days: string;
+}
