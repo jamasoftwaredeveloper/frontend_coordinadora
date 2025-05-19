@@ -266,9 +266,9 @@ export default function ListShippingOrderView() {
                     <>
                       <td>
                         <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
-                          changeStatusShipping(shipment, value.toString()); 
+                          changeStatusShipping(shipment, value ? value.toString() : '');
                         }
-                        } key={shipment.id} value={shipment.status}/>
+                        } key={shipment.id} value={shipment.status} />
                       </td>
                       <td className="text-center">
                         <button onClick={() => handleOpenModal(shipment, 'assig')}

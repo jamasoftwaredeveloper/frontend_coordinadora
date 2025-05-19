@@ -1,10 +1,11 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useQueryClient } from "@tanstack/react-query";
+import { User } from '../types/TUser';
 const AdminGuard: React.FC = () => {
 
   const queryClient = useQueryClient();
-  const user = queryClient.getQueryData(["getUser"]);
+  const user = queryClient.getQueryData<User>(["getUser"]);
 
 
   if (!user) {
