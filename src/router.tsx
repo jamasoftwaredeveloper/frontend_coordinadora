@@ -16,7 +16,9 @@ export default function Router() {
             <Routes>
                 <Route path="/" element={<Navigate to="/auth/login" />} />
                 <Route element={<AuthLayout />}>
+
                     <Route path="/auth/login" element={<LoginView />} />
+
                     <Route path="/auth/register" element={<RegisterView />} />
                 </Route>
                 <Route path="/admin" element={<AppLayout />}>

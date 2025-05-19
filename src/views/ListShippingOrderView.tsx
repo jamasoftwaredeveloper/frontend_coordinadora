@@ -124,9 +124,6 @@ export default function ListShippingOrderView() {
     setIsModalOpen(false);
   };
 
-
-
-
   // 3) Capturar Enter en el input
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {

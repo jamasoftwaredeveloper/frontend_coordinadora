@@ -103,6 +103,7 @@ class HttpClient {
   }
 }
 
-const httpClient = new HttpClient(import.meta.env.VITE_API_URL); // Replace with your API base URL
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000"; // Replace with your fallback URL
+const httpClient = new HttpClient(apiUrl); // Replace with your API base URL
 
 export default httpClient;
