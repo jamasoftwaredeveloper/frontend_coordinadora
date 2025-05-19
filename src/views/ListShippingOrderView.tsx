@@ -22,12 +22,12 @@ import { useUserAuthQuery } from "../hooks/Queries/useAuthQuery";
 
 export default function ListShippingOrderView() {
   const { data: user } = useUserAuthQuery();
-  const { routes, transporters } = useQueryContext();
+  const { routes, transporters, refetchAll } = useQueryContext();
   const { mutate: shippingOrderAssign } = useShippingOrderUpdateMutation();
   const { mutate: updateStatus } = useShippingOrderUpdateStatusMutation();
   const [page, setPage] = useState<number>(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [pageSize] = useState<number>(5);
+  const [pageSize] = useState<number>(20);
   const [filter, setFilter] = useState<Filter>();
   const [trackingNumber, setSearch] = useState<string>("");
   const [titleModal, setTitleModal] = useState<string>();
@@ -57,6 +57,7 @@ export default function ListShippingOrderView() {
 
     return () => {
       socket.off('update');
+      refetchAll()
     };
   }, []);
 
@@ -84,7 +85,6 @@ export default function ListShippingOrderView() {
     setFilter((prev) => ({ ...prev, startDate: formatDateForSQL(startDate), endDate: formatDateForSQL(endDate) }));
     refresh()
   };
-
 
   const handleSearch = () => {
     setFilter((prev) => ({ ...prev, search: trackingNumber }));
@@ -144,12 +144,12 @@ export default function ListShippingOrderView() {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 m-5">
         <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, route_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, route_id: parseInt((value ?? '').toString()) }));
           refresh()
         }
         } />
         <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
-          setFilter((prev) => ({ ...prev, transporter_id: parseInt(value.toString()) }));
+          setFilter((prev) => ({ ...prev, transporter_id: parseInt((value ?? '').toString()) }));
           refresh()
         }
         } />
@@ -266,9 +266,9 @@ export default function ListShippingOrderView() {
                     <>
                       <td>
                         <Select options={shipmentStatusOptions || []} placeholder="Selecciona un estado" onChange={(value) => {
-                          changeStatusShipping(shipment, value.toString());
+                          changeStatusShipping(shipment, value.toString()); 
                         }
-                        } />
+                        } key={shipment.id} value={shipment.status}/>
                       </td>
                       <td className="text-center">
                         <button onClick={() => handleOpenModal(shipment, 'assig')}

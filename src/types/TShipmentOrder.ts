@@ -110,3 +110,8 @@ export interface RouteMetrics {
   total_shipments: number;
   avg_delivery_time_days: string;
 }
+
+export interface TransporterForm {
+  name: string;
+  vehicle_capacity: number;
+}

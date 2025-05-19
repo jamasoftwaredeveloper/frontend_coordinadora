@@ -4,6 +4,7 @@ import {
   ParamUpdateStatus,
   ShippingOrderAssignForm,
   ShippingOrderForm,
+  TransporterForm,
 } from "../../types/TShipmentOrder";
 import httpClient from "../../utils/httpClient";
 import { toast } from "sonner";
@@ -118,6 +119,26 @@ export const ShippingOrderService = () => {
       }
     }
   };
+  const storeTransporter = async (data?: TransporterForm) => {
+    try {
+      const result = await httpClient.post("/shipment/storeTransporter", data);
+      toast.success("El transpose, fue creado correctamente");
+      return result.data;
+    } catch (error) {
+
+      if (isAxiosError(error) && error.response) {
+        if(error.response.data.message){
+          toast.error(error.response.data.message);
+        }
+        if(error.response.data.errors){
+          const {errors} =error.response.data;
+          errors.forEach((element: { msg: string }) => {
+            toast.error(element.msg);
+          });
+        }
+      }
+    }
+  };
 
   return {
     shippingOrderCreate,
@@ -127,5 +148,6 @@ export const ShippingOrderService = () => {
     getMonthlyPerformanceMetrics,
     getRoutePerformanceMetrics,
     getTransporterPerformanceMetrics,
+    storeTransporter,
   };
 };
