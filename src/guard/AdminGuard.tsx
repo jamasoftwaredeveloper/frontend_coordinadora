@@ -1,19 +1,21 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useUserAuthQuery } from '../hooks/Queries/useAuthQuery';
-
-// Define tipos para las funciones que obtienen token y rol
-
+import { useQueryClient } from "@tanstack/react-query";
 const AdminGuard: React.FC = () => {
-  
-  const { data: user } = useUserAuthQuery();
-  console.log("user",user);
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
 
-  if (user.role !== 'admin') {
+  const queryClient = useQueryClient();
+  const user = queryClient.getQueryData(["getUser"]);
+
+
+  if (!user) {
+    return <Navigate to="/auth/login" replace />;
+  }
+  /*
+    if (user) {
+      return <Navigate to="/admin" replace />;
+    }*/
+
+  if (user?.role !== 'admin') {
     return <Navigate to="/admin" replace />;
   }
 

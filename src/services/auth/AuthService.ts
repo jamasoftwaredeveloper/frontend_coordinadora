@@ -10,9 +10,8 @@ import { toast } from "sonner";
 export const AuthService = () => {
   const login = async (credentials: LoginForm) => {
     try {
-
       const result = await httpClient.post("/auth/login", credentials);
-      console.log("result login", result);
+      return result.data;
     } catch (error) {
       if (isAxiosError(error) && error.response) {
         toast.error(error.response.data.message);

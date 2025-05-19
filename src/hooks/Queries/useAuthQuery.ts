@@ -5,12 +5,12 @@ export const useUserAuthQuery = () => {
   const { getUser } = AuthService();
 
   // Se usa useQuery directamente dentro del hook useAuth
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryFn: getUser,
     queryKey: ["getUser"],
     retry: 1,
     refetchOnWindowFocus: true,
   });
 
-  return { data, isLoading, isError };
+  return { data, isLoading, isError, error };
 };
