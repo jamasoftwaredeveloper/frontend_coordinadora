@@ -83,9 +83,6 @@ export default function LoginView() {
                                 <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
                                     Contraseña
                                 </label>
-                                <Link to="/auth/forgot-password" className="text-sm text-[#1063AC] hover:text-blue-900">
-                                    ¿Olvidó su contraseña?
-                                </Link>
                             </div>
                             <input
                                 id="password"

@@ -5,12 +5,12 @@ export const useRoutesQuery = () => {
   const { getRoutes } = MetaDataService();
 
   // Se usa useQuery directamente dentro del hook useAuth
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryFn: getRoutes,
     queryKey: ["getRoutes"],
     retry: 1,
     refetchOnWindowFocus: true,
   });
 
-  return { data, isLoading, isError };
+  return { data, isLoading, isError, refetch };
 };

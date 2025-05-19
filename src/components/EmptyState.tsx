@@ -1,20 +1,20 @@
 const PackageIllustration = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-24 w-24 text-gray-300"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M3 7l9-4 9 4v10l-9 4-9-4V7z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M3 7l9 4 9-4M3 17l9-4 9 4"
-      />
-    </svg>
-  );
-  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-24 w-24 text-gray-300"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+      d="M3 7l9-4 9 4v10l-9 4-9-4V7z"
+    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+      d="M3 7l9 4 9-4M3 17l9-4 9 4"
+    />
+  </svg>
+);
+
 interface EmptyStateProps {
   title?: string;
   description?: string;
@@ -22,11 +22,11 @@ interface EmptyStateProps {
   onAction?: () => void;
 }
 
-export const EmptyState = ({ 
-  title = 'No hay registros', 
-  description = 'Aún no existen envíos que mostrar.', 
-  actionLabel = 'Crear nuevo envío',
-  onAction 
+export const EmptyState = ({
+  title = 'No hay registros',
+  description = 'Aún no existen envíos que mostrar.',
+  actionLabel,
+  onAction
 }: EmptyStateProps) => (
   <div className="flex flex-col items-center justify-center py-16">
     {/* Ilustración */}
@@ -43,11 +43,14 @@ export const EmptyState = ({
     </p>
 
     {/* CTA */}
-    <button
-      onClick={onAction}
-      className="mt-6 px-5 py-2 bg-[#1063AC] text-white rounded-lg shadow hover:shadow-lg focus:outline-none focus:ring"
-    >
-      {actionLabel}
-    </button>
+    {
+      actionLabel &&
+      <button
+        onClick={onAction}
+        className="mt-6 px-5 py-2 bg-[#1063AC] text-white rounded-lg shadow hover:shadow-lg focus:outline-none focus:ring"
+      >
+        {actionLabel}
+      </button>
+    }
   </div>
 );

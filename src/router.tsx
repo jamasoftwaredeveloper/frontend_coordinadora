@@ -7,6 +7,7 @@ import ListShippingOrderView from "./views/ListShippingOrderView";
 import ShippingOrderView from "./views/ShippingOrderView";
 import AdminGuard from "./guard/AdminGuard";
 import CreateTransporterView from "./views/CreateTransporterView";
+import PerformanceMetrics from "./views/PerformanceMetrics";
 
 
 export default function Router() {
@@ -22,10 +23,10 @@ export default function Router() {
                     <Route path="/auth/register" element={<RegisterView />} />
                 </Route>
                 <Route path="/admin" element={<AppLayout />}>
-                    <Route index={true} element={<ListShippingOrderView />} />
+                    <Route index={true} element={<PerformanceMetrics />} />
+                    <Route path="list" element={<ListShippingOrderView />} />
                     <Route path="shipping/order" element={<ShippingOrderView />} />
                     <Route path="shipping/assign" element={<ShippingOrderView />} />
-
                     <Route element={<AdminGuard />}>
                         <Route path="transporter" element={<CreateTransporterView />} />
                     </Route>

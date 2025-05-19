@@ -25,3 +25,11 @@ export function formatISODate(
   // Formatear la fecha
   return formatter.format(date);
 }
+
+export function formatDateForSQL(date: string): string {
+  if (date) {
+    return date.replace("T", " ") + ":00";
+  } else {
+    return "";
+  }
+};
