@@ -332,24 +332,24 @@ export default function ListShippingOrderView() {
                 </div>
               ) : (
                 <div>
-                <form className="p-6 rounded-lg shadow-md space-y-6" onSubmit={(event) => {
-                  event.preventDefault();  // Evita el recargado de la página
-                  submitShippingOrderAssign();  // Ejecuta la función
-                }}>
-                  <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
-                    setRouteId(value)
-                  }
-                  } />
-                  {errors.route && <p className="text-red-600">{errors.route}</p>}
-                  <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
-                    setTransporterId(value)
-                  }
-                  } />
-                  {errors.transporter && <p className="text-red-600">{errors.transporter}</p>}
-                  <div className="text-center mt-4">
-                    <input type="submit" className="bg-[#1063AC] text-white p-3 rounded-lg font-bold hover:bg-[#0E568E] cursor-pointer" value="Asignar Orden" />
-                  </div>
-                </form>
+                  <form className="p-6 rounded-lg shadow-md space-y-6 h-90" onSubmit={(event) => {
+                    event.preventDefault();  // Evita el recargado de la página
+                    submitShippingOrderAssign();  // Ejecuta la función
+                  }}>
+                    <Select options={routes.data || []} placeholder="Selecciona una ruta" onChange={(value) => {
+                      setRouteId(value)
+                    }
+                    } />
+                    {errors.route && <p className="text-red-600">{errors.route}</p>}
+                    <Select options={transporters.data || []} placeholder="Selecciona un transporte" onChange={(value) => {
+                      setTransporterId(value)
+                    }
+                    } />
+                    {errors.transporter && <p className="text-red-600">{errors.transporter}</p>}
+                    <div className="text-center mt-4">
+                      <input type="submit" className="bg-[#1063AC] text-white p-3 rounded-lg font-bold hover:bg-[#0E568E] cursor-pointer" value="Asignar Orden" />
+                    </div>
+                  </form>
                 </div>
               )}
           </Modal>
