@@ -13,8 +13,9 @@ export const AuthService = () => {
       const result = await httpClient.post("/auth/login", credentials);
       return result.data;
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError(error) && error.response) {        
         toast.error(error.response.data.message);
+        return false;
       }
     }
   };

@@ -7,11 +7,11 @@ const QueryContext = createContext(null);
 // Este es el proveedor del contexto que envolverá tu aplicación
 export function QueryProvider({ children }) {
   // Consulta para las rutas
-
-  const routesQuery = useRoutesQuery();
-
-  // Consulta para los transportadores
-  const transportersQuery = useTransportersQuery();
+  const token = localStorage.getItem("token");
+  
+  // Solo ejecutar las queries si hay token
+  const routesQuery = useRoutesQuery({ enabled: !!token });
+  const transportersQuery = useTransportersQuery({ enabled: !!token });
 
   // El valor que proporcionamos al contexto incluye ambos resultados de useQuery
   const value = {
