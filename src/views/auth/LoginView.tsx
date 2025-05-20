@@ -21,7 +21,15 @@ export default function LoginView() {
     async function handleLogin(data: LoginForm) {
         try {
             setIsLoading(true);
-            await login(data);
+            const response = await login(data);
+            if (typeof response === 'boolean') {
+                return false;
+            }
+            if (typeof response === 'object' && response !== null && 'token' in response) {
+                localStorage.setItem("token", (response as { token: string }).token);
+            } else {
+                throw new Error("Invalid response format");
+            }
             reset();
             navigate("/admin/shipping/order");
         } catch (error) {

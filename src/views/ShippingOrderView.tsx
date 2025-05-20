@@ -5,7 +5,9 @@ import { useShippingOrderMutation } from "../hooks/Mutations/useShippingOrderMut
 import { toast } from "sonner";
 import { ValidationAddressService } from "../services/validationAddress/ValidationAddressService";
 import { useNavigate } from "react-router-dom";
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { useQueryContext } from '../context/QueryContext';
 // Componente para la información del paquete
 function PackageInfoForm({ register, errors }: any) {
     const fields = [
@@ -74,6 +76,7 @@ function AddressForm({ register, errors, prefix, title }: any) {
 export default function ShippingOrderView() {
     const { mutate: shippingOrderCreate } = useShippingOrderMutation();
     const navigate = useNavigate();
+    const { refetchAll } = useQueryContext();
     const defaultValues = {
         route_id: 0,
         transporter_id: 0,
@@ -86,12 +89,15 @@ export default function ShippingOrderView() {
     const { register, handleSubmit, formState: { errors } } = useForm<ShippingOrderForm>({ defaultValues });
     async function handleUserProfileForm(data: ShippingOrderForm) {
         const { street, city, state, postalCode, country } = data.destinationAddress;
-        const result = await ValidationAddressService().validationAddress({street, city, state, postalCode, country});
+        const result = await ValidationAddressService().validationAddress({ street, city, state, postalCode, country });
         if (result.length > 0) {
             toast.info("La dirección valida, continuará con el guardado.");
             shippingOrderCreate(data);
-            navigate("/admin")
-        }else {
+            refetchAll()
+            setTimeout(() => {
+                navigate("/admin/list")
+            }, 1000);
+        } else {
             toast.error("La dirección ingresada no es valida.");
         }
     }
