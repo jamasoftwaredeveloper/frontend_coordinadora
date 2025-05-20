@@ -47,7 +47,7 @@ git clone https://github.com/jamasoftwaredeveloper/frontend_coordinadora.git
 Inicia el servidor con:
 
 ```bash
-npm run start
+npm run dev
 ```
 
 

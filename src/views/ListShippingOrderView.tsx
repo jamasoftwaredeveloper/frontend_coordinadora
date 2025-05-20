@@ -109,9 +109,7 @@ export default function ListShippingOrderView() {
       return;
     }
 
-    console.log("selectedShipment", selectedShipment)
     if (selectedShipment) {
-      console.log("entro a update")
 
       shippingOrderAssign({
         route_id: Number(routeId), transporter_id: Number(transporterId), id: selectedShipment.id || 0
@@ -333,6 +331,7 @@ export default function ListShippingOrderView() {
                     <strong>Costo: </strong> {selectedShipment.cost}</p>
                 </div>
               ) : (
+                <div>
                 <form className="p-6 rounded-lg shadow-md space-y-6" onSubmit={(event) => {
                   event.preventDefault();  // Evita el recargado de la página
                   submitShippingOrderAssign();  // Ejecuta la función
@@ -351,6 +350,7 @@ export default function ListShippingOrderView() {
                     <input type="submit" className="bg-[#1063AC] text-white p-3 rounded-lg font-bold hover:bg-[#0E568E] cursor-pointer" value="Asignar Orden" />
                   </div>
                 </form>
+                </div>
               )}
           </Modal>
         </div>
