@@ -27,7 +27,7 @@ export default function ListShippingOrderView() {
   const { mutate: updateStatus } = useShippingOrderUpdateStatusMutation();
   const [page, setPage] = useState<number>(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [pageSize] = useState<number>(20);
+  const [pageSize] = useState<number>(10);
   const [filter, setFilter] = useState<Filter>();
   const [trackingNumber, setSearch] = useState<string>("");
   const [titleModal, setTitleModal] = useState<string>();
@@ -293,7 +293,9 @@ export default function ListShippingOrderView() {
             <span className="text-gray-700 font-medium">Página {page}</span>
             <button
               onClick={nextPage}
-              className="p-2 text-white font-semibold rounded-md transition-colors bg-[rgb(16,99,172)] hover:bg-blue-700"
+              disabled={shipments.length < 10}
+              className={`p-2 text-white font-semibold rounded-md transition-colors ${shipments.length < 10 ? "bg-gray-300 cursor-not-allowed" : "bg-[rgb(16,99,172)] hover:bg-blue-900"
+                }`}
             >
               Siguiente
             </button>
